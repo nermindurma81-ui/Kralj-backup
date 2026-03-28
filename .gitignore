@@ -1,0 +1,7 @@
+-e node_modules/
+.vercel
+dist/
+.env
+output/
+*.tar.gz
+*.zip
