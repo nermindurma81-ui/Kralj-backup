@@ -1,23 +1,17 @@
-# 🚀 OpenClaw on Railway - Optimized Dockerfile
-# Built with lessons from 45 skills deployment
+# 🚀 OpenClaw on Railway - Simplified & Optimized
+# Minimal dependencies for faster, more reliable builds
 
-FROM node:20-bookworm-slim
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies (optimized for size + speed)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install minimal system dependencies (Alpine uses apk, not apt)
+RUN apk add --no-cache \
     git \
     curl \
-    wget \
-    ffmpeg \
     python3 \
-    python3-pip \
-    ca-certificates \
-    gnupg \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    && rm -rf /var/cache/apk/*
 
 # Install OpenClaw CLI globally
 RUN npm install -g openclaw-cli
@@ -26,15 +20,7 @@ RUN npm install -g openclaw-cli
 RUN mkdir -p /app/workspace
 
 # Copy workspace files
-COPY workspace/ /app/workspace/
-
-# Copy start script
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
-
-# Copy health check script
-COPY healthcheck.sh /app/healthcheck.sh
-RUN chmod +x /app/healthcheck.sh
+COPY . /app/workspace/
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -47,7 +33,7 @@ EXPOSE 9110
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
-    CMD bash /app/healthcheck.sh || exit 1
+    CMD curl -f http://localhost:9110/health || exit 1
 
 # Start command
-CMD ["bash", "/app/start.sh"]
+CMD ["sh", "-c", "cd /app/workspace && npx openclaw gateway start --port $OPENCLAW_PORT --host $OPENCLAW_HOST --workspace $OPENCLAW_WORKSPACE"]
