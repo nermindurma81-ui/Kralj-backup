@@ -1,0 +1,16 @@
+{
+  "name": "ai-video-pipeline",
+  "version": "1.0.0",
+  "description": "Automated AI video production pipeline for 1000+ clips/month",
+  "type": "module",
+  "scripts": {
+    "start": "node pipeline.js",
+    "scheduler": "node scheduler.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "node-cron": "^3.0.3",
+    "p-queue": "^8.0.1",
+    "dotenv": "^16.4.5"
+  }
+}
